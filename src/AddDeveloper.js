@@ -14,11 +14,6 @@ class AddDeveloper extends React.Component {
   };
 
   updateDeveloperSkills = event => {
-    // const skillsArray = event.target.value.split(",");
-    // const filteredSkills = skillsArray.filter(skill => {
-    //   return skill.length > 0;
-    // });
-
     this.setState({
       skills: event.target.value
     });
@@ -31,8 +26,21 @@ class AddDeveloper extends React.Component {
   };
 
   addDeveloper = () => {
-    this.props.addNewDeveloperFunc(this.state.developerName, this.state.skills, this.state.dateJoined);
-  }
+    // Maybe don't let someone add the new developer if the name/skills is empty
+
+    const skillsArray = this.state.skills.split(",");
+    const filteredSkills = skillsArray.filter(skill => {
+      return skill.length > 0;
+    });
+
+    this.props.addNewDeveloperFunc(
+      this.state.developerName,
+      filteredSkills,
+      this.state.dateJoined
+    );
+
+    // Reset state to empty values/intital values
+  };
 
   render() {
     return (
