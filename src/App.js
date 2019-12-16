@@ -48,6 +48,31 @@ class App extends React.Component {
       }
     ]
   };
+
+  addNewDeveloper = (name, skills, dateJoined) => {
+    console.log(name, skills, dateJoined);
+
+    // Create a new developer object
+    const newDev = {
+      name: name,
+      skills: skills,
+      available: true,
+      dateJoined: dateJoined,
+      id: 6
+    };
+
+    // Copy the array of developers from state using slice
+    const copy = this.state.developers.slice();
+
+    // Push that object into the array of developers
+    copy.push(newDev);
+
+    // Make sure state is updated
+    this.setState({
+      developers: copy
+    });
+  };
+
   render() {
     const availableDevelopers = this.state.developers.filter(developer => {
       return developer.available === true;
@@ -61,7 +86,7 @@ class App extends React.Component {
       <div className="App">
         <div className="container">
           <Header />
-          <AddDeveloper />
+          <AddDeveloper addNewDeveloperFunc={this.addNewDeveloper} />
           <DeveloperCount count={availableDevelopers.length} />
           <h2>Available right now:</h2>
           {availableDevelopers.map(developer => {
