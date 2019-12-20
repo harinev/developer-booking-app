@@ -1,17 +1,44 @@
 import React from "react";
 
+// Controlled component
+// Component (with Form elements) where we are keeping track on the state of what values have been inputted by the user
 class AddDeveloper extends React.Component {
   state = {
     developerName: "",
-    skills: [],
+    skills: "",
     dateJoined: "2019-12-09"
   };
 
+  // Event handler
   updateDeveloperName = event => {
-    console.log(event.target.value);
     this.setState({
       developerName: event.target.value
     });
+  };
+
+  // Event handler
+  updateDeveloperSkills = event => {
+    this.setState({
+      skills: event.target.value
+    });
+  };
+
+  // Event handler
+  updateDate = event => {
+    this.setState({
+      dateJoined: event.target.value
+    });
+  };
+
+  // Event handler
+  handleAdd = () => {
+    const skillsArray = this.state.skills.split(", ");
+
+    this.props.addNewDevFunc(
+      this.state.developerName,
+      skillsArray,
+      this.state.dateJoined
+    );
   };
 
   render() {
@@ -29,15 +56,24 @@ class AddDeveloper extends React.Component {
         <div className="col-4">
           <input
             type="text"
+            onChange={this.updateDeveloperSkills}
+            value={this.state.skills}
             className="form-control"
             placeholder="Enter skills"
           />
         </div>
         <div className="col-3">
-          <input type="date" className="form-control" />
+          <input
+            type="date"
+            className="form-control"
+            value={this.state.dateJoined}
+            onChange={this.updateDate}
+          />
         </div>
         <div className="col-2">
-          <button className="btn btn-primary">Add</button>
+          <button onClick={this.handleAdd} className="btn btn-primary">
+            Add
+          </button>
         </div>
       </div>
     );
