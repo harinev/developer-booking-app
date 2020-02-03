@@ -75,6 +75,19 @@ class App extends React.Component {
     });
   };
 
+  deleteDeveloper = id => {
+    // make a copy of the state and remove the developer in question
+    const filteredDevs = this.state.developers.filter(dev => {
+      if (dev.id === id) return false;
+      else return true;
+    });
+
+    // update the state with the new shorter array
+    this.setState({
+      developers: filteredDevs
+    });
+  };
+
   render() {
     const availableDevelopers = this.state.developers.filter(developer => {
       return developer.available === true;
@@ -99,6 +112,8 @@ class App extends React.Component {
                 name={developer.name}
                 skills={developer.skills}
                 dateJoined={developer.dateJoined}
+                deleteDevFunc={this.deleteDeveloper}
+                id={developer.id}
               />
             );
           })}
@@ -111,6 +126,8 @@ class App extends React.Component {
                 name={developer.name}
                 skills={developer.skills}
                 dateJoined={developer.dateJoined}
+                deleteDevFunc={this.deleteDeveloper}
+                id={developer.id}
               />
             );
           })}
