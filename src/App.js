@@ -1,5 +1,6 @@
 import React from "react";
 import uuid from "uuid/v4";
+import axios from "axios";
 import DeveloperCount from "./DeveloperCount";
 import Header from "./Header";
 import Developer from "./Developer";
@@ -11,82 +12,88 @@ import "./App.css";
 // State must live in the parent of any components that need to access it
 class App extends React.Component {
   state = {
-    developers: [
-      {
-        name: "Sue Moron-Garcia",
-        skills: ["TDD", "Debugging"],
-        available: false,
-        dateJoined: "2019-12-02",
-        id: uuid()
-      },
-      {
-        name: "Fiona Castillo",
-        skills: ["HTML", "CSS"],
-        available: true,
-        dateJoined: "2019-11-30",
-        id: uuid()
-      },
-      {
-        name: "Harine Vijay",
-        skills: ["Java"],
-        available: false,
-        dateJoined: "2019-12-01",
-        id: uuid()
-      },
-      {
-        name: "Ilga Koko",
-        skills: ["HTML", "TDD", "React"],
-        available: true,
-        dateJoined: "2019-10-22",
-        id: uuid()
-      },
-      {
-        name: "Nichola Evans",
-        skills: ["CSS", "Ruby", "Python"],
-        available: false,
-        dateJoined: "2019-12-09",
-        id: uuid()
-      }
-    ]
+    developers: []
   };
+
+  // Lifecycle method
+  componentDidMount() {
+    // Fetch the developers making a GET request
+    axios.get("https://4z2i5gh407.execute-api.eu-west-1.amazonaws.com/dev/developers")
+      .then((response) => {
+        const developers = response.data.developers;
+        this.setState({
+          developers: developers
+        })
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
   // ONE RULE
   // Any function that updates state MUST live in the same component as the state
   addNewDeveloper = (name, skills, date) => {
-    // Create a new developer object
     const newDeveloper = {
       name: name,
       skills: skills,
       available: true,
-      dateJoined: date,
-      id: uuid()
+      date_joined: date
     };
 
-    // Add that developer to the list
-    // ANOTHER RULE
-    // You must never update state directly, setState is the correct way of updating state
-    // Slice makes a copy of an array
-    const copyOfDevs = this.state.developers.slice();
-    copyOfDevs.push(newDeveloper);
+    axios.post("https://4z2i5gh407.execute-api.eu-west-1.amazonaws.com/dev/developers", newDeveloper)
+      .then((response) => {
+        const newDev = response.data;
+        const copyOfDevs = this.state.developers.slice();
+        copyOfDevs.push(newDev);
 
-    // Ensure the state is updated (setState)
-    this.setState({
-      developers: copyOfDevs
-    });
+        this.setState({
+          developers: copyOfDevs
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   deleteDeveloper = id => {
-    // make a copy of the state and remove the developer in question
-    const filteredDevs = this.state.developers.filter(dev => {
-      if (dev.id === id) return false;
-      else return true;
-    });
+    axios.delete(`https://4z2i5gh407.execute-api.eu-west-1.amazonaws.com/dev/developers/${id}`)
+      .then(() => {
+        const filteredDevs = this.state.developers.filter(dev => {
+          if (dev.id === id) return false;
+          else return true;
+        });
 
-    // update the state with the new shorter array
-    this.setState({
-      developers: filteredDevs
-    });
+        this.setState({
+          developers: filteredDevs
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
+
+  bookDeveloper = id => {
+    // Mark the given developer as booked (available=false)
+    axios.put(`https://4z2i5gh407.execute-api.eu-west-1.amazonaws.com/dev/developers/${id}`, {
+      available: false
+    })
+      .then(() => {
+        const updatedDevelopers = this.state.developers.map(dev => {
+          if (dev.id === id) {
+            dev.available = false;
+          }
+
+          return dev;
+        });
+
+        this.setState({
+          developers: updatedDevelopers
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
 
   render() {
     const availableDevelopers = this.state.developers.filter(developer => {
@@ -111,8 +118,9 @@ class App extends React.Component {
                 available={developer.available}
                 name={developer.name}
                 skills={developer.skills}
-                dateJoined={developer.dateJoined}
+                dateJoined={developer.date_joined}
                 deleteDevFunc={this.deleteDeveloper}
+                bookDeveloper={this.bookDeveloper}
                 id={developer.id}
               />
             );
@@ -125,7 +133,7 @@ class App extends React.Component {
                 available={developer.available}
                 name={developer.name}
                 skills={developer.skills}
-                dateJoined={developer.dateJoined}
+                dateJoined={developer.date_joined}
                 deleteDevFunc={this.deleteDeveloper}
                 id={developer.id}
               />
